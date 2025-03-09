@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.ticker as mticker
 
 # File path
 file_path = r"C:/Users/Admin/Downloads/archive/gym_members_exercise_tracking.csv"
@@ -27,11 +28,7 @@ df = df[[weight_column, fatpercent_column]].dropna().sort_values(by=fatpercent_c
 if df.empty:
     raise ValueError("No valid data found!")
 
-# Plot settings
-plt.figure(figsize=(12, 6))
-
-# Scatter plot to show weight vs fat percentage
-
+# Function to categorize weight
 def categorize_weight(w):
     if w < 60:
         return "Below 60 kg"
@@ -42,19 +39,22 @@ def categorize_weight(w):
 
 df["Weight Category"] = df[weight_column].apply(categorize_weight)
 
+# Plot settings
+plt.figure(figsize=(12, 6))
 
-# KDE plot for weight and fat percentage
-
-sns.kdeplot(x=df[weight_column], color='Blue', fill=True, alpha=0.5, clip=(0, 60))  # Below 60 kg (Blue)
-sns.kdeplot(x=df[weight_column], color='Pink', fill=True, alpha=0.5, clip=(60, 100))  # 60-100 kg (Green)
-sns.kdeplot(x=df[weight_column], color='Purple', fill=True, alpha=0.5, clip=(100, 200))  # Above 100 kg (Orange)
-
+# KDE plot with actual values instead of density
+sns.kdeplot(x=df[weight_column], color='Blue', fill=True, alpha=0.5, clip=(0, 60), common_norm=False)  # Below 60 kg (Blue)
+sns.kdeplot(x=df[weight_column], color='Pink', fill=True, alpha=0.5, clip=(60, 100), common_norm=False)  # 60-100 kg (Pink)
+sns.kdeplot(x=df[weight_column], color='Purple', fill=True, alpha=0.5, clip=(100, 200), common_norm=False)  # Above 100 kg (Purple)
 
 # Formatting
 plt.xlabel("Weight (kg)", fontsize=14)
 plt.ylabel("Fat Percentage (%)", fontsize=14)
 plt.title("Relationship Between Weight and Fat Percentage", fontsize=16)
 plt.grid(True, linestyle="--", alpha=0.5)
+
+# Format y-axis labels to display values in hundreds
+plt.gca().yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'{int(x * 1000)}'))
 
 # Show plot
 plt.show()
